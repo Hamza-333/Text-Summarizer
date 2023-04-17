@@ -34,6 +34,8 @@ The decoder unit is then stacked as well. Each unit can learn to focus on differ
 
 
 ### Model Figure
+<img src="Images/Model diagram.png" width="450"/>
+
 
 ### Model Parameters
 The model has 2 encoder and decoder layers. Each encoder contains 4 Multi-attention Heads, 1 feed-forward network, and 2 Layer normalization layers. Each of these have a certainnumber of parameters.
@@ -44,7 +46,7 @@ Next we have layer normalization parameters. Each layer norm has 2 learnable par
 
 There is also a feed-forward component. The feed-forwad network has 2 layers, one with 2048 hidden units and the other with 256 hidden units. Thus,  $W_{1}$ has shape $256 \times 2048$, $W_{2}$ has shape $2048 \times 256$. The bias terms, $b_{1}$, $b_{2}$ have shapes 2048 x 1 and $256 \times 1$, respectively. Hence, the total parameters in the feed-forward network is given by: Parameters(Feed-Forward) = $(256 \times 2048 + 2048) + (2048 \times 256 + 256) = 1050880$
 
-Each encoder consists of 1 Multi-Attention Head (with 4 attention heads), 2 Layer Normalization layers, and 1 Feed-Forward Network. Therefore, the total number of parameters in both encoders combined is given by: Parameters(Encoders) = $(263168 + (2 \times 512) + 1050880) \times 2 = 2630144$
+Each encoder consists of 1 Multi-Head attention layer (with 4 attention heads), 2 Layer Normalization layers, and 1 Feed-Forward Network. Therefore, the total number of parameters in both encoders combined is given by: Parameters(Encoders) = $(263168 + (2 \times 512) + 1050880) \times 2 = 2630144$
 
 Each decoder consists of 2 Multi-Attention layers (with 4 attention heads), 3 Layer Normalization layers, and 1 Feed-Forward Network. Therefore, the total number of parameters in both encoders combined is given by: Parameters(Encoders) = $((2 \times 263168) + 3( \times 512) + 1050880) \times 2 = 3157504$
 
