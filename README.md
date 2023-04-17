@@ -3,7 +3,10 @@
 ## Introduction
 We will be creating a Natural Language Processing Transformer Model that performs Abstractive Text Summarization. Given a document, article, or body of text, the model will return a concise summary of the provided text. Since we are dealing with sequential data, we will be using a transformer provided by Pytorch, with a bidirectional encoder and an autoregressive decoder, and fine-tuning it to enhance performance as required for the task. 
 
-## Model
+
+### Model Figure and Description
+<img src="Images/Model Figure.png" width="450"/>
+
 As we are creating a text summarizer model, our model architecture is the same as the one described in the paper “Attention is all you need” Ashish Vaswani et al. 
 
 We start by tokenizing our data. This is decribed in detail in the data transformation section below.
@@ -14,27 +17,26 @@ Unlike a recurrent neural network, the transformer architecture does not have a 
 
 Before our encoder architecture, the word embeddings and positional encodings are added together element-wise to create a combined input representation. This combined representation is then passed through several layers in the encoder layer. 
 
-The first sub-layer in each encoder unit is a multi-head self-attention mechanism. It receives the combined input representation and calculates a new set of embeddings that have attended to all positions in the sequence, effectively creating a representation of the entire sequence.
+The first sub-layer in each encoder unit is a multi-head attention mechanism that contains 4 attentions heads. It receives the combined input representation and calculates a new set of embeddings that have attended to all positions in the sequence, effectively creating a representation of the entire sequence.
 
-After this layer there is a “Add & Norm” or residual layer that adds the input embeddings to the output embeddings of the previous layer and normalizes it. This helps to mitigate the vanishing gradient problem, allows gradients to flow more easily through the network during training, and improves the generalization performance of the network. 
+After this layer there is a “Add & Norm” Layer with residual connections that adds the input embeddings to the output embeddings of the previous layer and normalizes it. This helps to mitigate the vanishing gradient problem, allows gradients to flow more easily through the network during training, and improves the generalization performance of the network. 
 
-Then the outputs are passed through a fully connected layer which allows each position to interact with the other positions through a non-linear function to increase the expressiveness of the encoder.
+Then the outputs are passed through a Feed-Forward network with fully connected layers which allows each position to interact with the other positions through a non-linear activation function (ReLu) to increase the expressiveness of the encoder.
 
 Finally, the outputs from the previous layer are passed through another residual layer for the same reason described earlier. 
  
 This forms one unit of the encoder layer. We will be using multiple layers in our model that are stacked together so that the model can capture complex relationships between input tokens allowing it to learn more complicated patterns and relationships in the data.
 
 In the decoder layer, we similarly encode the outputs by creating the word embeddings and positional encodings and adding them together element-wise which is passed through a multi-head attention and residual layer exactly as before for the same reasons. 
+A difference between the encoder and decoder is that the decoder is autoregressive. The autoregressive property ensures that the decoder only uses the past words to generate the next word. The decoder uses an attention mask to mask future words to prevent the model from 'cheating'.
 
 Then these hidden output states and the outputs from the encoder layer are passed through another multi-head attention layer. The purpose of this mechanism is to compute a weighted sum of the encoder output, where the weights are computed based on the similarity between the decoder's current hidden state and each encoder output vector. 
 
-Finally, the output of this layer is passed through a residual layer, a fully connected layer, and another residual layer for the same reasons as discussed earlier. 
+Finally, the output of this layer is passed through a Add & Norm layer with a residual connection, a Feed-Forward network, and another Add & Norm layer with a residual connection for the same reasons as discussed earlier. 
 
-The decoder unit is then stacked as well. Each unit can learn to focus on different aspects of the input and output sequences, and the final layer can combine all of this information to generate the final output sequence. The model can learn to attend to different parts of the input and output sequences at different levels of abstraction.
+The decoder units are then stacked as well. Each unit can learn to focus on different aspects of the input and output sequences, and the final layer can combine all of this information to generate the final output sequence. The model can learn to attend to different parts of the input and output sequences at different levels of abstraction.
 
-
-### Model Figure
-<img src="Images/Model Figure.png" width="450"/>
+Lastly, the features generated by the decoder are passed through a fully connected layer that maps the features to vocabulary indexes. Using a softmax a probability distribution is computed over the vocabulary and the word with the highest probability is generated.
 
 
 ### Model Parameters
@@ -212,35 +214,35 @@ We began training our model with a batch size of 32, and various values for the 
 
 For the learning rate, initially we started with 0.000001. But as we trained the model, convergence was taking an extended period of time where our model weights were not being updated effectively. As we began to increase the learning rate, we saw better performance in our models, resulting in a smaller validation loss and a higher rouge score. But as the learning rate got too big, the validation loss began to diverge and produce a volatile loss curve. After testing several values for the learning rate, we found that a learning rate of 0.00025 resulted in the best overall performance. 
 
-For our transformer model, due to the lack of computational resources, a model with a larger architecture was not possible. We trained a model with 16 heads and 8 sub-encoder-layers and 8 sub-decoder-layers, as well as another model with 8 heads and 4 sub-encoder-layers and 4 sub-decoder-layers. These larger models were taking a long time to train and were showing signs of overfitting to the training data with a high validation loss and a low rouge score. We found the best performing model to be with 4 heads and 2 sub-encoder and 2 sub-decoder layers, as it able to generalize better on the data and did not overfit. 
+For our transformer model, due to the lack of computational resources, a model with a larger architecture was not possible. We trained a model with 16 heads and 8 sub-encoder-layers and 8 sub-decoder-layers, as well as another model with 8 heads and 4 sub-encoder-layers and 4 sub-decoder-layers. These larger models were taking a long time to train and were showing signs of overfitting to the training data with a high validation loss and a low rouge score. We found the best performing model to be with 4 heads and 2 sub-encoder and 2 sub-decoder layers, as it was able to generalize better on the data and did not overfit. 
 
 Using checkpointing, we found it best to train the model for 11 epochs, as after the 11 epochs the validation loss began to further diverge from the minima. The minimum of the validation loss occured in the 5th epoch, as can be seen in the Loss curve and the Rouge score curve. 
 
 
 ### Quantitative Measures
 
-For our purposes, computing accuracy by strictly comparing the words used and thier specific order between the generated summary and the target summary did not seem reasonable since a generated summary may not be exactly the same as the target sumamry, but may still effectively summarize the given text. 
+For our purposes, computing accuracy by strictly comparing the words used and thier specific order between the generated summary and the target summary did not seem reasonable since a generated summary may not be exactly the same as the target summary, but may still effectively summarize the given text. 
 
-Thus, we used ROUGE (Recall-Oriented Understudy for Gisting Evaluation) scores to evaluate quality of the generated summary. ROUGE is typically used for summarization tasks as it measures the overlap between generated summary and target summary. For this task we used Rouge-1 scores, which measures the overlap of unigrams (individual words) between the generated summary and the target summary. Moreover, we used the f1 score from Rouge-1 which the harmonic mean between precision and recall. 
+Thus, we used ROUGE (Recall-Oriented Understudy for Gisting Evaluation) scores to evaluate quality of the generated summary. ROUGE is typically used for summarization tasks as it measures the overlap between the generated summary and target summary. For this task we used Rouge-1 scores, which measures the overlap of unigrams (individual words) between the generated summary and the target summary. Moreover, we used the f1 score from Rouge-1 which computes the harmonic mean between precision and recall. 
 
-In this context, precision is the ratio between the number of overlapping words between the generated summary and the target summary and total number of words in the generated summary. It measures how concise the generated summary is. Recall is the ratio between the number of overlapping words between the generated summary and the target summary and total number of words in the target summary. It measures how accurate the generated summary is. The f1 score combines both of these measures into one value by and measures how concise and accurate a summary is. Hence, the Rouge-1 f1 score is an appropriate quatitative measure for this task.
+In this context, precision is the ratio between the number of overlapping words between the generated summary and the target summary and the total number of words in the generated summary. It measures how concise the generated summary is. Recall is the ratio between the number of overlapping words between the generated summary and the target summary and the total number of words in the target summary. It measures how accurate the generated summary is. The f1 score combines both of these measures into one value and measures how concise and accurate a summary is. Hence, the Rouge-1 f1 score is an appropriate quatitative measure for this task.
 
 ## Results
 Evaluating from a qualitative perspective, the model was able to generate coherent and grammatically correct outputs given the input text. However, sometimes the outputs were completely irrelevent to the input text and other times they were an exact match to the target sequence.
 
-Evaluating from a quantitative perspective, the model achieved an average Rouge-1 f1 score of approximately 0.30. The Rouge-1 f1 score measures how accurate and concise the generated summary is by comparing with the target summary. The average score of 0.30 appears very low as there were a few outliers with scores of less than 0.06 which dragged the average down. About 20% of test examples achieved a score between 0.35-0.5, while 10% achieved a score of above 0.5. The generated examples with scores between 0.35-0.5 captured a high level overview of the input text and would miss the details. The examples with scores of greater than 0.5 captured most of the details as well. Examples with scores below 0.35 were mostly irrelevant to the input text but grammatically correct.
+Evaluating from a quantitative perspective, the model achieved an average Rouge-1 f1 score of approximately 0.30 on the test set. The Rouge-1 f1 score measures how accurate and concise the generated summary is by comparing with the target summary. The average score of 0.30 appears very low as there were a few outliers with scores of less than 0.06 which dragged the average down. About 20% of test examples achieved a score between 0.35-0.5, while 10% achieved a score of above 0.5. The generated examples with scores between 0.35-0.5 captured a high level overview of the input text and would miss the details. The examples with scores of greater than 0.5 captured most of the details as well. Examples with scores below 0.35 were mostly irrelevant to the input text but grammatically correct.
 
 ### Justification
-Our model performed reasonably well given the difficulty of this task and the resource constraints. The model was able to generate coherent and relevant outputs for a significant amount of examples in the test set and exact summaries for some. For some examples, it generated coherent but unrelated summaries and in extreme cases generated very poor outputs that were neither related nor coherent.
+Our model performed reasonably well given the difficulty of this task and the resource constraints. The model was able to generate coherent and relevant outputs for a significant amount of examples in the test set and exact summaries for some. For some examples, it generated coherent but unrelated summaries and in extreme cases it generated very poor outputs that were neither relevant nor coherent.
 
- However, this was expected given the time and resource constraints. Due to the resource constraints (memory and GPU) we were unable to use a larger dataset or have training examples that had longer sequences. Longer sequences required a significantly larger amount of GPU memory and training time. To combat the GPU memory constraint, we implemented gradient accumalation. The goal was to accumalate gradients over a few small batches and update parameters after the set amount of batches. However, this further slowed down the training to a point that it was unfeasable to continue with the training, as Google Colab would terminate the session after a few hours. Using longer sequences and sequences of varying lengths would have greatly improved the model's performance as it would have been able to learn different structures and would have been able to generalize better. A larger dataset of small sequences would have also helped the model's performance, however this also increased the training time tremendously. Thus, we had to opt for a smaller dataset (approximately 76,000 training examples) of smaller sequences (at most 75 words). 
+However, this was expected given the time and resource constraints. Due to the resource constraints (memory and GPU) we were unable to use a larger dataset or have training examples that had longer sequences. Longer sequences required a significantly larger amount of GPU memory and training time. To combat the GPU memory constraint, we implemented gradient accumalation. The goal was to accumalate gradients over a few small batches and update parameters after the set amount of batches. However, this further slowed down the training to a point that it was unfeasable to continue with the training. Using longer sequences and sequences of varying lengths would have greatly improved the model's performance as it would have been able to learn different structures and would have been able to generalize better. A larger dataset of small sequences would have also helped the model's performance, however this also increased the training time tremendously. Thus, we had to opt for a smaller dataset (approximately 76,000 training examples) of smaller sequences (at most 75 words). 
 
-The smaller dataset presented another challenge that it was much more prone to the risk of overfitting. After trying many models and hyperparameters, we found that after a few epochs, the training loss would decrease rapidly while the validation loss would steadily increase, indicating that the model began to overfit. To combat this we decreased the complexity of the model considerably, which improved the model's performance significantly. However, we realized that given the size of the dataset and the difficulty of the task, there is a very fine line between overfitting and underfitting. We found that decreasing the model complexity slightly (decreasing number of encoders/decoders by one) would cause underfitting, while keeping it the same would cause overfitting after a certain number of epochs. We hypothesized that this may be due to the size of the dataset and the length of the sequences, where a slightly more complex model is too complex for the data and a slightly simpler model could not capture important features in the data.Lastly, this can also be due to erraneous examples in the dataset, where the target sequence was completely irrelevant tot he input text. One of these examples is presented below:
+The smaller dataset presented another challenge that it was much more prone to the risk of overfitting. After trying many models and hyperparameters, we found that after a few epochs, the training loss would decrease rapidly while the validation loss would steadily increase, indicating that the model began to overfit. To combat this, we decreased the complexity of the model considerably, which improved the model's performance significantly. However, we realized that given the size of the dataset and the difficulty of the task, there is a very fine line between overfitting and underfitting. We found that decreasing the model complexity slightly (decreasing number of encoders/decoders by one) would cause underfitting, while keeping it the same would cause overfitting after a certain number of epochs. We hypothesized that this may be due to the size of the dataset and the length of the sequences, where a slightly more complex model is too complex for the data and a slightly simpler model could not capture important features in the data. Lastly, this can also be due to erraneous examples in the dataset, where the target sequence was completely irrelevant to the input text. One of these examples is presented below:
 
 Input text: it was supposed to be a cozy affair. \
 Target summary: out in force : as # beloved sci - fi franchises fade away fans have seized the spotlight like never before.
 
-It can be seen that the target summary is completely irrelevant to the input text. Although these examples make up a small percentage of the dataset, they can still be detrimental to the learning of the model. These examples can inflate the loss and cause the model to learn incorrect representations. Also, attempting to fit to these examples would cause poor performance on the validation and test sets as these examples do not generalize well. Detecting and getting rid of these examples is extremely challenging as we would have to manually check more than 78,000 training examples and remove them from the dataset. A viable solution besides changing datasets is to increase the batch size so that the loss of these examples account only for a small portion of the total batch loss which is used for parameter updates. However, the impact may still not be completely discounted.
+It can be seen that the target summary is completely irrelevant to the input text. Although these examples make up a small percentage of the dataset, they can still be detrimental to the learning of the model. These examples can inflate the loss and cause the model to learn incorrect representations. Also, attempting to fit to these examples would cause poor performance on the validation and test sets as these examples do not generalize well. Detecting and getting rid of these examples is extremely challenging as we would have to manually check more than 76,000 training examples and remove them from the dataset. A viable solution besides changing datasets is to increase the batch size so that the loss of these examples account only for a small portion of the total batch loss which is used for parameter updates. However, the impact may still not be completely discounted.
 
 Overall, given the size of the dataset and sequences and the difficulty of the task, the model's performance was reasonable. 
 ## Ethical Considerations
@@ -261,3 +263,42 @@ could in turn potentially be generated by a group of people targeting another gr
 people.
 
 ## Authors
+
+Hamza Faisal:
+
+Coding:
+ - Data Augmentation
+ - Model Building
+ - Hyperparameter Tuning
+ - Evaluation of Model Performance
+Report:
+ - Data Transformation
+ - Model Parameters
+ - Quantitative Measures
+ - Qualitative and Quantitative Results
+ - Justification of Results
+
+Mian Hassan Subhani:
+
+Coding:
+ - Data Sourcing and Exploration
+ - Model Building
+ - Hyperparameter Tuning
+Report:
+ - Model Examples
+ - Data Source
+ - Data Summary
+ - Data Split
+ - Hyperparameter Tuning
+ - Training Curve
+
+Hadi Hafeez:
+
+Coding:
+ - Model Building
+ - Hyperparameter Tuning
+ - Training Curve
+Report:
+ - Introduction
+ - Model Figure and Description
+ - Ethical Consideration
