@@ -271,6 +271,7 @@ Coding:
  - Model Building
  - Hyperparameter Tuning
  - Evaluation of Model Performance
+
 Report:
  - Data Transformation
  - Model Parameters
@@ -284,6 +285,7 @@ Coding:
  - Data Sourcing and Exploration
  - Model Building
  - Hyperparameter Tuning
+
 Report:
  - Model Examples
  - Data Source
@@ -298,6 +300,7 @@ Coding:
  - Model Building
  - Hyperparameter Tuning
  - Training Curve
+
 Report:
  - Introduction
  - Model Figure and Description
