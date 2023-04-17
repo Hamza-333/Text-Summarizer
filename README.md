@@ -47,7 +47,8 @@ Parameters(Multi-Head Attention) = $(256 \times 256 + 256) + (64 \times 256 + 64
 
 Next we have layer normalization parameters. Each layer norm has 2 learnable parameters per embedding dimension. Thus the number of parameters is given by: Parameters(LayerNorm) = $2 \times 256 = 512$
 
-There is also a feed-forward component. The feed-forwad network has 2 layers, one with 2048 hidden units and the other with 256 hidden units. Thus,  $W_{1}$ has shape $256 \times 2048$, $W_{2}$ has shape $2048 \times 256$. The bias terms, $b_{1}$, $b_{2}$ have shapes 2048 x 1 and $256 \times 1$, respectively. Hence, the total parameters in the feed-forward network is given by: \ Parameters(Feed-Forward) = $(256 \times 2048 + 2048) + (2048 \times 256 + 256) = 1050880$
+There is also a feed-forward component. The feed-forwad network has 2 layers, one with 2048 hidden units and the other with 256 hidden units. Thus,  $W_{1}$ has shape $256 \times 2048$, $W_{2}$ has shape $2048 \times 256$. The bias terms, $b_{1}$, $b_{2}$ have shapes 2048 x 1 and $256 \times 1$, respectively. Hence, the total parameters in the feed-forward network is given by: \
+Parameters(Feed-Forward) = $(256 \times 2048 + 2048) + (2048 \times 256 + 256) = 1050880$
 
 Each encoder consists of 1 Multi-Head attention layer (with 4 attention heads), 2 Layer Normalization layers, and 1 Feed-Forward Network. Therefore, the total number of parameters in both encoders combined is given by: \
 Parameters(Encoders) = $(263168 + (2 \times 512) + 1050880) \times 2 = 2630144$
