@@ -56,7 +56,10 @@ Parameters(Encoders) = $(263168 + (2 \times 512) + 1050880) \times 2 = 2630144$
 Each decoder consists of 2 Multi-Head Attention layers (with 4 attention heads), 3 Layer Normalization layers, and 1 Feed-Forward Network. Therefore, the total number of parameters in both decoders combined is given by: \
 Parameters(Encoders) = $((2 \times 263168) + 3( \times 512) + 1050880) \times 2 = 3157504$
 
-The total number of parameters in the model is: Parameters(TransformerModel) = $2630144 + 3157504 = 5787648$.
+The final linear layer contains 30522 (size of vocabulary) hidden units. Hence $W_{linear}$ has shape dmodel x vocabulary size, which results in $256 \times 30522$. The number of parameters in the linear layer is: \
+Parameters(Linear layer) = $256 \times 30522 = 7813632$
+
+The total number of parameters in the model is: Parameters(TransformerModel) = $2630144 + 3157504 + 7813632 = 13601280$.
 
 ### Model Examples
 
