@@ -34,7 +34,7 @@ The decoder unit is then stacked as well. Each unit can learn to focus on differ
 
 
 ### Model Figure
-<img src="Images/Model diagram.png" width="450"/>
+<img src="Images/Model Figure.png" width="450"/>
 
 
 ### Model Parameters
