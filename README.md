@@ -237,7 +237,7 @@ In this context, precision is the ratio between the number of overlapping words 
 ## Qualitative and Quantitative Results
 Evaluating from a qualitative perspective, the model was able to generate coherent and grammatically correct outputs given the input text. However, sometimes the outputs were completely irrelevent to the input text and other times they were an exact match to the target sequence. The following are some examples of the generated summary:
 
-**Successful example:**
+**Successful example**
 >**Input:** jakarta share prices closed #. # percent lower tuesday amid selling pressure on heavyweight stocks, brokers said.
 >
 >**Target:** jakarta shares close #. # percent lower
