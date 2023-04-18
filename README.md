@@ -235,9 +235,32 @@ Thus, we used ROUGE (Recall-Oriented Understudy for Gisting Evaluation) scores t
 In this context, precision is the ratio between the number of overlapping words between the generated summary and the target summary and the total number of words in the generated summary. It measures how concise the generated summary is. Recall is the ratio between the number of overlapping words between the generated summary and the target summary and the total number of words in the target summary. It measures how accurate the generated summary is. The f1 score combines both of these measures into one value and measures how concise and accurate a summary is. Hence, the Rouge-1 f1 score is an appropriate quatitative measure for this task.
 
 ## Qualitative and Quantitative Results
-Evaluating from a qualitative perspective, the model was able to generate coherent and grammatically correct outputs given the input text. However, sometimes the outputs were completely irrelevent to the input text and other times they were an exact match to the target sequence.
+Evaluating from a qualitative perspective, the model was able to generate coherent and grammatically correct outputs given the input text. However, sometimes the outputs were completely irrelevent to the input text and other times they were an exact match to the target sequence. The following are some examples of the generated summary:
 
-Evaluating from a quantitative perspective, the model achieved an average Rouge-1 f1 score of approximately 0.30 on the test set. The Rouge-1 f1 score measures how accurate and concise the generated summary is by comparing with the target summary. The average score of 0.30 appears very low as there were a few outliers with scores of less than 0.06 which dragged the average down. About 20% of test examples achieved a score between 0.35-0.5, while 10% achieved a score of above 0.5. The generated examples with scores between 0.35-0.5 captured a high level overview of the input text and would miss the details. The examples with scores of greater than 0.5 captured most of the details as well. Examples with scores below 0.35 were mostly irrelevant to the input text but grammatically correct.
+**Successful example:**
+>**Input:** jakarta share prices closed #. # percent lower tuesday amid selling pressure on heavyweight stocks, brokers said.
+>
+>**Target:** jakarta shares close #. # percent lower
+>
+>**Model Output:** jakarta shares close #. # percent lower
+
+**Semi-successful (captures most details but not all details of the input)**
+>**Input:**  barcelona midfielder gerard will be out of action for up to two months after surgery for a groin injury, the spanish primera liga club said on saturday. 
+>
+>**Target:**  barcelona midfielder gerard out for two months
+>
+>**Text generated:**  injury rules out for two months
+
+**Unsuccessful (Misses most details or irrelevant output)**
+>**Input:**  the hong kong special administrative region - lrb - hksar - rrb - government would implement additional precautionary measures to prepare for a possible influenza pandemic caused by avian influenza, a spokesman for the health, welfare and food bureau said on wednesday.
+>
+>**Target:** hk to take additional measures to deal with avian influenza 
+>
+>**Text generated:** hong kong to announce # # # # # # # olympics
+
+As it can be seen, the successful example summarized the input text perfectly. The semi-succsessful example captured most details from the input and only misses some. In the example, the generated summary is different from the target summary but still summarizes the input well, except that it misses a key detail "barcelona midfielder". In the unsuccessful example, the generated summary only picked up on the "hong kong" and missed every other detail and generated irrelevant text.
+
+Evaluating from a quantitative perspective, the model achieved an average Rouge-1 f1 score of approximately 0.30 on the test set. The Rouge-1 f1 score measures how accurate and concise the generated summary is by comparing with the target summary. The average score of 0.30 appears very low as there were a few outliers with scores of less than 0.06 which dragged the average down. About 21% of test examples achieved a score between 0.35-0.5, while 10% achieved a score of above 0.5. The generated examples with scores between 0.35-0.5 captured a high level overview of the input text and would miss the details. The examples with scores of greater than 0.5 captured most of the details while missing some. Examples with scores below 0.35 were mostly irrelevant to the input text but grammatically correct.
 
 ### Justification of Results
 Our model performed reasonably well given the difficulty of this task and the resource constraints. The model was able to generate coherent and relevant outputs for a significant amount of examples in the test set and exact summaries for some. For some examples, it generated coherent but unrelated summaries and in extreme cases it generated very poor outputs that were neither relevant nor coherent.
